@@ -1,32 +1,60 @@
-import client from "../client";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import client from "../client";
 
 export default {
   Mutation: {
     createAccount: async (
-      root,
+      _,
       { firstName, lastName, username, email, password }
     ) => {
-      const existingUser = await client.user.findFirst({
-        where: {
-          OR: [{ username }, { email }],
-        },
-      });
+      try {
+        const existingUser = await client.user.findFirst({
+          where: {
+            OR: [
+              {
+                username,
+              },
+              {
+                email,
+              },
+            ],
+          },
+        });
+        if (existingUser) {
+          throw new Error("This username/password is already taken.");
+        }
+        const uglyPassword = await bcrypt.hash(password, 10);
+        return client.user.create({
+          data: {
+            username,
+            email,
+            firstName,
+            lastName,
+            password: uglyPassword,
+          },
+        });
+      } catch (e) {
+        return e;
+      }
+    },
+    login: async (_, { username, password }) => {
+      const user = await client.user.findFirst({ where: { username } });
+      if (!user) {
+        return {
+          ok: false,
+          error: "User not found.",
+        };
+      }
 
-      // 2번 파라미터 - 암호화에 사용되는 소금입니다. 숫자로 지정되면 지정된 라운드 수로 소금이 생성되어 사용됩니다.
-      const uglyPassword = await bcrypt.hash(password, 10);
-
-      // const user = await client.user.create(...);
-      // return user; 이것과 아래 방식으로 리턴하는 것은 동일하다. 브라우저가 prisma가 끝날 때까지 기다린다
-      return client.user.create({
-        data: {
-          firstName,
-          lastName,
-          username,
-          email,
-          password: uglyPassword,
-        },
-      });
+      // bcrypt.compare(전달받은 비밀번호, DB에 있는 해쉬된 비밀번호)
+      const passwordOk = await bcrypt.compare(password, user.password);
+      if (!passwordOk) {
+        return {
+          ok: false,
+          error: "Incorrect password.",
+        };
+      }
     },
   },
 };
