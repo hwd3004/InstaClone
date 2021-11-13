@@ -1,17 +1,8 @@
-import client from "../client";
+```javascript
+...
 import bcrypt from "bcrypt";
 
-export default {
-  Mutation: {
-    createAccount: async (
-      root,
-      { firstName, lastName, username, email, password }
-    ) => {
-      const existingUser = await client.user.findFirst({
-        where: {
-          OR: [{ username }, { email }],
-        },
-      });
+...
 
       // 2번 파라미터 - 암호화에 사용되는 소금입니다. 숫자로 지정되면 지정된 라운드 수로 소금이 생성되어 사용됩니다.
       const uglyPassword = await bcrypt.hash(password, 10);
@@ -27,6 +18,5 @@ export default {
           password: uglyPassword,
         },
       });
-    },
-  },
-};
+...
+```
