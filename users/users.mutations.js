@@ -46,8 +46,6 @@ export default {
           error: "User not found.",
         };
       }
-
-      // bcrypt.compare(전달받은 비밀번호, DB에 있는 해쉬된 비밀번호)
       const passwordOk = await bcrypt.compare(password, user.password);
       if (!passwordOk) {
         return {
@@ -55,6 +53,13 @@ export default {
           error: "Incorrect password.",
         };
       }
+
+      const token = await jwt.sign({ id: user.id }, process.env.SECRET_KEY);
+
+      return {
+        ok: true,
+        token,
+      };
     },
   },
 };
