@@ -1,7 +1,7 @@
 import { createWriteStream } from "fs";
 import bcrypt from "bcrypt";
-import client from "../../client";
-import { protectedResolver } from "../users.utils";
+import client from "../../client.js";
+import { protectedResolver } from "../users.utils.js";
 
 const resolverFn = async (
   _,
