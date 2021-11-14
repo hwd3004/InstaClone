@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon server.js --exec babel-node"
+    "dev": "nodemon --exec babel-node server.js --delay 2"
   },
   "dependencies": {
     "@graphql-tools/load-files": "^6.5.2",
