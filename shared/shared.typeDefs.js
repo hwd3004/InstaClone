@@ -10,8 +10,12 @@ export default gql`
 
 export const uploadLocal = async (file, userId, folderName) => {
   try {
-    !existsSync(folderName) && mkdirSync(folderName);
+    // https://itinerant.tistory.com/55
+    // [nodejs] 폴더 없으면 생성하도록 하는 방법
+    !existsSync(`uploads/${folderName}`) && mkdirSync(`uploads/${folderName}`);
 
+    // https://dev.to/kingmaker9841/apollo-server-express-file-upload-on-local-storage-and-on-aws-s3-1km8
+    // 나중에 비동기 처리 해주어야한다
     const { filename, createReadStream } = await file.file;
     const objectName = `${folderName}/${userId}-${Date.now()}-${filename}`;
     const readStream = createReadStream();
